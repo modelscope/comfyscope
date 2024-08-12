@@ -6,7 +6,7 @@ from io import BytesIO
 
 
 
-class DashscopeFLUXAPI:
+class DashScopeFLUXAPI:
     @classmethod
     def INPUT_TYPES(s):
         return {
@@ -36,7 +36,7 @@ class DashscopeFLUXAPI:
 
     RETURN_TYPES = ("IMAGE",)
     FUNCTION = "call_api"
-    CATEGORY = "Dashscope"
+    CATEGORY = "DashScope"
 
     def preprocess_image(self, image):
         image = torch.Tensor(np.array(image, dtype=np.float32) * (1 / 255))
