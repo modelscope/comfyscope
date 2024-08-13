@@ -1,10 +1,10 @@
-from .nodes.dashscope_flux_api import DashscopeFLUXAPI
+from .nodes.dashscope_flux_api import DashScopeFLUXAPI
 
 
 NODE_CLASS_MAPPINGS = {
-    "DashscopeFLUXAPI": DashscopeFLUXAPI,
+    "DashScopeFLUXAPI": DashScopeFLUXAPI,
 }
 NODE_DISPLAY_NAME_MAPPINGS = {
-    "DashscopeFLUXAPI": "FLUX API",
+    "DashScopeFLUXAPI": "FLUX API",
 }
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
