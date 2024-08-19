@@ -43,6 +43,7 @@ class DashScopeFLUXAPI:
         return image
 
     def call_api(self, model, api_key, prompt, size, seed, steps):
+        seed = seed % 4294967290
         dashscope.api_key=api_key
         rsp = dashscope.ImageSynthesis.call(model=model, prompt=prompt, size=size, seed=seed, steps=steps)
         if rsp.status_code == HTTPStatus.OK:
