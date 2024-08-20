@@ -1,0 +1,15 @@
+[project]
+name = "comfyscope"
+description = "The FLUX model API from DashScope, developed by Black Forest Labs, offers superior image generation capabilities with optimized support for Chinese prompts, achieving a commendable tradeoff between performance and the quality of generated images compared to other open-source models."
+version = "1.0.0"
+license = {file = "LICENSE"}
+dependencies = ["dashscope"]
+
+[project.urls]
+Repository = "https://github.com/modelscope/comfyscope"
+#  Used by Comfy Registry https://comfyregistry.org
+
+[tool.comfy]
+PublisherId = ""
+DisplayName = "comfyscope"
+Icon = ""
