@@ -777,14 +777,13 @@ def copy_set_active(files, is_disable, js_path_name='.'):
 
 @PromptServer.instance.routes.post("/customnode/install")
 async def install_custom_node(request):
-    # if not is_allowed_security_level('middle'):
-    #     print(f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
-    #     return web.Response(status=403)
+    if not is_allowed_security_level('middle'):
+        print(f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
+        return web.Response(status=403)
 
     json_data = await request.json()
 
-    # risky_level = await get_risky_level(json_data['files'])
-    risky_level = "normal"
+    risky_level = await get_risky_level(json_data['files'])
     if not is_allowed_security_level(risky_level):
         print(f"ERROR: This installation is not allowed in this security_level.  Please contact the administrator.")
         return web.Response(status=404)
@@ -885,19 +884,6 @@ async def modelscope_reset_personal_customnodes(request):
 
     data = {"Message":"Successfully cleaned personal custom nodes."}
     return web.Response(text=json.dumps(data), status=200)
-
-
-# @PromptServer.instance.routes.post("/customnode/install/pip")
-# async def install_custom_node_git_url(request):
-#     if not is_allowed_security_level('high'):
-#         print(f"ERROR: To use this feature, you must set '--listen' to a local IP and set the security level to 'middle' or 'weak'. Please contact the administrator.")
-#         return web.Response(status=403)
-#
-#     packages = await request.text()
-#     core.pip_install(packages.split(' '))
-#
-#     return web.Response(status=200)
-
 
 @PromptServer.instance.routes.post("/customnode/uninstall")
 async def uninstall_custom_node(request):
@@ -1683,6 +1669,7 @@ import asyncio
 async def default_cache_update():
     async def get_cache(filename):
         uri = 'https://raw.githubusercontent.com/ltdrdata/ComfyUI-Manager/main/' + filename
+        print(uri)
         cache_uri = str(core.simple_hash(uri)) + '_' + filename
         cache_uri = os.path.join(core.cache_dir, cache_uri)
 

@@ -1,5 +1,6 @@
 import os
 import sys
+import glob
 import subprocess
 import re
 import shutil
@@ -16,7 +17,7 @@ import json
 import time
 import yaml
 import zipfile
-import glob
+import traceback
 
 glob_path = os.path.join(os.path.dirname(__file__))  # ComfyUI-Manager/glob
 sys.path.append(glob_path)
@@ -528,13 +529,15 @@ def is_valid_url(url):
     return False
 
 def get_cached_git(url):
-    cached_git_repo = [os.path.basename(i) for i in glob.glob("/Users/renhy/tmp/*")]
+    cached_git_repo = [os.path.basename(i) for i in glob.glob("/mnt/comfyui-test/custom_nodes/*")]
     repo_name = url.strip().split("/")[-1]
+    user_name = os.environ["USER_NAME"]
     if repo_name in cached_git_repo:
         print(f"Find downloaded custom_node: '{url}")
-        os.symlink("/Users/renhy/tmp/"+repo_name, "/Users/renhy/ComfyUI/custom_nodes/"+repo_name)
+        os.symlink("/mnt/comfyui-test/custom_nodes/"+repo_name, "/mnt/comfyui-test/custom_nodes_users/" + user_name + "/" + repo_name)
         return True
     return False
+
 
 def gitclone_install(files, instant_execution=False, msg_prefix=''):
     print(f"{msg_prefix}Install: {files}")
@@ -556,7 +559,6 @@ def gitclone_install(files, instant_execution=False, msg_prefix=''):
                 if res != 0:
                     return False
             else:
-                # os.system("git clone -v --recursive --progress -- " + url + " " + repo_path)
                 if not get_cached_git(url):
                     repo = git.Repo.clone_from(url, repo_path, recursive=True, progress=GitProgress())
                     repo.git.clear_cache()
@@ -566,12 +568,12 @@ def gitclone_install(files, instant_execution=False, msg_prefix=''):
                 return False
 
         except Exception as e:
+            print(traceback.format_exc())
             print(f"Install(git-clone) error: {url} / {e}", file=sys.stderr)
             return False
 
     print("Installation was successful.")
     return True
-
 
 def git_pull(path):
     # Check if the path is a git repository
