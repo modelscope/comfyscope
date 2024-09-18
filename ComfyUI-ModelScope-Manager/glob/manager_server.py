@@ -15,6 +15,7 @@ import shutil
 import git
 from modelscope.hub.file_download import model_file_download
 import time
+import datetime
 
 from server import PromptServer
 import manager_core as core
@@ -838,30 +839,35 @@ async def install_modelscope_model(request):
     local_dir = core.comfy_path + '/' + json_data['local_dir']
 
     uuid = model_id+":"+file_path+":"+revision+"->"+local_dir
-    modelscope_download_tasks[model_id+":"+file_path+":"+revision+":"+local_dir] = {"status":0,"progress":0,"message":"Initializing", "model_id": model_id, "file_path": file_path, "local_dir":local_dir, "revision":revision}
+    modelscope_download_tasks[uuid] = {"status":0,"progress":0,"message":"Initializing", "model_id": model_id, "file_path": file_path, "local_dir":local_dir, "revision":revision, "gmt_created": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "gmt_modified": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     # model_file_download(model_id, file_path, revision=revision, local_dir=local_dir)
     asyncio.create_task(progress_modelscope(uuid))
 
-    return web.Response(status=200)
+    return web.Response(text=json.dumps({"Message":"success", "Success":True, "Code":200}), status=200)
 
 @PromptServer.instance.routes.get("/customnode/modelscope/status")
 async def get_modelscope_status(request):
-    return web.Response(text=json.dumps(modelscope_download_tasks), status=200)
+    modelscope_download_tasks_ = [i for i in sorted(modelscope_download_tasks.values(), key=lambda x: x["gmt_created"], reverse=True)]
+    return web.Response(text=json.dumps(modelscope_download_tasks_), status=200)
 
 
 async def progress_modelscope(uuid):
     modelscope_download_tasks[uuid]["status"] = 1
     modelscope_download_tasks[uuid]["message"] = "Running"
+    modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     if modelscope_download_tasks[uuid]["model_id"] == 'test/fail':
         modelscope_download_tasks[uuid]["status"] = -1
         modelscope_download_tasks[uuid]["message"] = "Error:failed to download model - " + uuid
+        modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         return
     for i in range(50):
         modelscope_download_tasks[uuid]["progress"] = (i+1)*2
+        modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         await asyncio.sleep(1)
     modelscope_download_tasks[uuid]["status"] = 2
     modelscope_download_tasks[uuid]["message"] = "Success"
+    modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     return
 
 @PromptServer.instance.routes.post("/customnode/fix")
