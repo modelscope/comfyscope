@@ -14,6 +14,7 @@ import re
 import shutil
 import git
 from modelscope.hub.file_download import model_file_download
+import time
 
 from server import PromptServer
 import manager_core as core
@@ -23,6 +24,7 @@ print(f"### Loading: ComfyUI-Manager ({core.version_str})")
 
 comfy_ui_hash = "-"
 
+modelscope_download_tasks = {}
 
 def handle_stream(stream, prefix):
     stream.reconfigure(encoding=locale.getpreferredencoding(), errors='replace')
@@ -821,6 +823,46 @@ async def install_custom_node(request):
 
     return web.Response(status=400)
 
+
+@PromptServer.instance.routes.post("/customnode/modelscope/install_model")
+async def install_modelscope_model(request):
+    json_data = await request.json()
+
+    model_id = json_data['model_id']
+    file_path = json_data['file_path']
+    revision = 'master'
+
+    if 'revision' in json_data:
+        revision = json_data['revision']
+
+    local_dir = core.comfy_path + '/' + json_data['local_dir']
+
+    uuid = model_id+":"+file_path+":"+revision+"->"+local_dir
+    modelscope_download_tasks[model_id+":"+file_path+":"+revision+":"+local_dir] = {"status":0,"progress":0,"message":"Initializing", "model_id": model_id, "file_path": file_path, "local_dir":local_dir, "revision":revision}
+    # model_file_download(model_id, file_path, revision=revision, local_dir=local_dir)
+    asyncio.create_task(progress_modelscope(uuid))
+
+    return web.Response(status=200)
+
+@PromptServer.instance.routes.get("/customnode/modelscope/status")
+async def get_modelscope_status(request):
+    return web.Response(text=json.dumps(modelscope_download_tasks), status=200)
+
+
+async def progress_modelscope(uuid):
+    modelscope_download_tasks[uuid]["status"] = 1
+    modelscope_download_tasks[uuid]["message"] = "Running"
+
+    if modelscope_download_tasks[uuid]["model_id"] == 'test/fail':
+        modelscope_download_tasks[uuid]["status"] = -1
+        modelscope_download_tasks[uuid]["message"] = "Error:failed to download model - " + uuid
+        return
+    for i in range(50):
+        modelscope_download_tasks[uuid]["progress"] = (i+1)*2
+        await asyncio.sleep(1)
+    modelscope_download_tasks[uuid]["status"] = 2
+    modelscope_download_tasks[uuid]["message"] = "Success"
+    return
 
 @PromptServer.instance.routes.post("/customnode/fix")
 async def fix_custom_node(request):
