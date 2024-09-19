@@ -829,17 +829,25 @@ async def install_custom_node(request):
 async def install_modelscope_model(request):
     json_data = await request.json()
 
+    if ('model_id' not in json_data) or json_data['model_id'].strip() == '':
+        return web.Response(text=json.dumps({"Message": "missing model_id", "Success": False, "Code": 400}), status=400)
     model_id = json_data['model_id']
-    file_path = json_data['file_path']
+
+    if ('filename' not in json_data) or json_data['filename'].strip() == '':
+        return web.Response(text=json.dumps({"Message": "missing filename", "Success": False, "Code": 400}), status=400)
+    file_path = json_data['filename']
     revision = 'master'
 
     if 'revision' in json_data:
         revision = json_data['revision']
 
-    local_dir = core.comfy_path + '/' + json_data['local_dir']
+    local_dir = core.comfy_path + '/' + json_data['save_path']
 
-    uuid = model_id+":"+file_path+":"+revision+"->"+local_dir
-    modelscope_download_tasks[uuid] = {"status":0,"progress":0,"message":"Initializing", "model_id": model_id, "file_path": file_path, "local_dir":local_dir, "revision":revision, "gmt_created": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "gmt_modified": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    uuid = model_id+":"+file_path+":"+revision+"->"+json_data['save_path']
+    if uuid not in modelscope_download_tasks:
+        modelscope_download_tasks[uuid] = {"status":0,"progress":0,"message":"Initializing", "model_id": model_id, "filename": file_path, "save_path":json_data['save_path'], "revision":revision, "gmt_created": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "gmt_modified": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+    else:
+        modelscope_download_tasks[uuid]['gmt_modified'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     # model_file_download(model_id, file_path, revision=revision, local_dir=local_dir)
     asyncio.create_task(progress_modelscope(uuid))
 
