@@ -902,6 +902,7 @@ async def modelscope_downloader(uuid):
         ms_args.append(revision)
 
     try:
+        print(ms_args)
         pipe = subprocess.Popen(ms_args,
                                 bufsize=-1,
                                 text=True,
