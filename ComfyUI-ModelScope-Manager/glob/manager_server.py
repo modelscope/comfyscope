@@ -13,9 +13,9 @@ import threading
 import re
 import shutil
 import git
-from modelscope.hub.file_download import model_file_download
-import time
 import datetime
+import inspect
+import asyncio
 
 from server import PromptServer
 import manager_core as core
@@ -45,7 +45,6 @@ def handle_stream(stream, prefix):
 from comfy.cli_args import args
 import latent_preview
 
-
 is_local_mode = args.listen.startswith('127.') or args.listen.startswith('local.')
 
 
@@ -63,7 +62,8 @@ def is_allowed_security_level(level):
 
 async def get_risky_level(files):
     json_data1 = await core.get_data_by_mode('local', 'custom-node-list.json')
-    json_data2 = await core.get_data_by_mode('cache', 'custom-node-list.json', channel_url='https://github.com/ltdrdata/ComfyUI-Manager/raw/main/custom-node-list.json')
+    json_data2 = await core.get_data_by_mode('cache', 'custom-node-list.json',
+                                             channel_url='https://github.com/ltdrdata/ComfyUI-Manager/raw/main/custom-node-list.json')
 
     all_urls = set()
     for x in json_data1['custom_nodes'] + json_data2['custom_nodes']:
@@ -173,7 +173,8 @@ def print_comfyui_version():
 
         try:
             if core.comfy_ui_commit_datetime.date() < core.comfy_ui_required_commit_datetime.date():
-                print(f"\n\n## [WARN] ComfyUI-Manager: Your ComfyUI version ({core.comfy_ui_revision})[{core.comfy_ui_commit_datetime.date()}] is too old. Please update to the latest version. ##\n\n")
+                print(
+                    f"\n\n## [WARN] ComfyUI-Manager: Your ComfyUI version ({core.comfy_ui_revision})[{core.comfy_ui_commit_datetime.date()}] is too old. Please update to the latest version. ##\n\n")
         except:
             pass
 
@@ -192,12 +193,15 @@ def print_comfyui_version():
         # <--
 
         if current_branch == "master":
-            print(f"### ComfyUI Revision: {core.comfy_ui_revision} [{comfy_ui_hash[:8]}] | Released on '{core.comfy_ui_commit_datetime.date()}'")
+            print(
+                f"### ComfyUI Revision: {core.comfy_ui_revision} [{comfy_ui_hash[:8]}] | Released on '{core.comfy_ui_commit_datetime.date()}'")
         else:
-            print(f"### ComfyUI Revision: {core.comfy_ui_revision} on '{current_branch}' [{comfy_ui_hash[:8]}] | Released on '{core.comfy_ui_commit_datetime.date()}'")
+            print(
+                f"### ComfyUI Revision: {core.comfy_ui_revision} on '{current_branch}' [{comfy_ui_hash[:8]}] | Released on '{core.comfy_ui_commit_datetime.date()}'")
     except:
         if is_detached:
-            print(f"### ComfyUI Revision: {core.comfy_ui_revision} [{comfy_ui_hash[:8]}] *DETACHED | Released on '{core.comfy_ui_commit_datetime.date()}'")
+            print(
+                f"### ComfyUI Revision: {core.comfy_ui_revision} [{comfy_ui_hash[:8]}] *DETACHED | Released on '{core.comfy_ui_commit_datetime.date()}'")
         else:
             print("### ComfyUI Revision: UNKNOWN (The currently installed ComfyUI is not a Git repository)")
 
@@ -378,8 +382,9 @@ async def fetch_updates(request):
 
         check_custom_nodes_installed(json_obj, True)
 
-        update_exists = any('custom_nodes' in json_obj and 'installed' in node and node['installed'] == 'Update' for node in
-                            json_obj['custom_nodes'])
+        update_exists = any(
+            'custom_nodes' in json_obj and 'installed' in node and node['installed'] == 'Update' for node in
+            json_obj['custom_nodes'])
 
         if update_exists:
             return web.Response(status=201)
@@ -392,7 +397,8 @@ async def fetch_updates(request):
 @PromptServer.instance.routes.get("/customnode/update_all")
 async def update_all(request):
     if not is_allowed_security_level('middle'):
-        print(f"ERROR: To use this action, a security_level of `middle or below` is required. Please contact the administrator.")
+        print(
+            f"ERROR: To use this action, a security_level of `middle or below` is required. Please contact the administrator.")
         return web.Response(status=403)
 
     try:
@@ -483,13 +489,15 @@ async def fetch_customnode_list(request):
         if code is not None and code.startswith('#NOTICE_'):
             try:
                 notice_version = [int(x) for x in code[8:].split('.')]
-                return notice_version[0] < core.version[0] or (notice_version[0] == core.version[0] and notice_version[1] <= core.version[1])
+                return notice_version[0] < core.version[0] or (
+                            notice_version[0] == core.version[0] and notice_version[1] <= core.version[1])
             except Exception:
                 return False
         else:
             return False
 
-    json_obj['custom_nodes'] = [record for record in json_obj['custom_nodes'] if not is_ignored_notice(record.get('author'))]
+    json_obj['custom_nodes'] = [record for record in json_obj['custom_nodes'] if
+                                not is_ignored_notice(record.get('author'))]
 
     check_custom_nodes_installed(json_obj, False, not skip_update)
 
@@ -517,7 +525,7 @@ async def fetch_customnode_alternatives(request):
 
     for item in alter_json['items']:
         populate_markdown(item)
-        
+
     return web.json_response(alter_json, content_type='application/json')
 
 
@@ -594,9 +602,10 @@ async def get_snapshot_list(request):
 @PromptServer.instance.routes.get("/snapshot/remove")
 async def remove_snapshot(request):
     if not is_allowed_security_level('middle'):
-        print(f"ERROR: To use this action, a security_level of `middle or below` is required. Please contact the administrator.")
+        print(
+            f"ERROR: To use this action, a security_level of `middle or below` is required. Please contact the administrator.")
         return web.Response(status=403)
-    
+
     try:
         target = request.rel_url.query["target"]
 
@@ -612,9 +621,10 @@ async def remove_snapshot(request):
 @PromptServer.instance.routes.get("/snapshot/restore")
 async def remove_snapshot(request):
     if not is_allowed_security_level('middle'):
-        print(f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
+        print(
+            f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
         return web.Response(status=403)
-    
+
     try:
         target = request.rel_url.query["target"]
 
@@ -781,7 +791,8 @@ def copy_set_active(files, is_disable, js_path_name='.'):
 @PromptServer.instance.routes.post("/customnode/install")
 async def install_custom_node(request):
     if not is_allowed_security_level('middle'):
-        print(f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
+        print(
+            f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
         return web.Response(status=403)
 
     json_data = await request.json()
@@ -825,6 +836,12 @@ async def install_custom_node(request):
     return web.Response(status=400)
 
 
+def update_modelscope_download_status(uuid, code, message):
+    modelscope_download_tasks[uuid]["status"] = code
+    modelscope_download_tasks[uuid]["message"] = message
+    modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+
 @PromptServer.instance.routes.post("/customnode/modelscope/install_model")
 async def install_modelscope_model(request):
     json_data = await request.json()
@@ -838,50 +855,94 @@ async def install_modelscope_model(request):
     file_path = json_data['filename']
     revision = 'master'
 
-    if 'revision' in json_data:
+    if ('revision' in json_data) or (json_data['revision'].strip() != ""):
         revision = json_data['revision']
+    else:
+        revision = ""
 
-    local_dir = core.comfy_path + '/' + json_data['save_path']
+    if ('save_path' not in json_data) or json_data['save_path'].strip() == '':
+        json_data['save_path'] = ""
+    elif not re.match(r"^[A-Za-z0-9_\-/\\]*$", json_data['save_path']):
+        return web.Response(text=json.dumps({"Message": "illegal path", "Success": False, "Code": 400}), status=400)
 
-    uuid = model_id+":"+file_path+":"+revision+"->"+json_data['save_path']
+    uuid = model_id + ":" + file_path + ":" + revision + "->" + json_data['save_path']
     if uuid not in modelscope_download_tasks:
-        modelscope_download_tasks[uuid] = {"status":0,"progress":0,"message":"Initializing", "model_id": model_id, "filename": file_path, "save_path":json_data['save_path'], "revision":revision, "gmt_created": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), "gmt_modified": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
+        modelscope_download_tasks[uuid] = {"status": 0, "progress": 0, "message": "Initializing", "model_id": model_id,
+                                           "filename": file_path, "save_path": json_data['save_path'],
+                                           "revision": revision,
+                                           "gmt_created": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+                                           "gmt_modified": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}
     else:
         modelscope_download_tasks[uuid]['gmt_modified'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # model_file_download(model_id, file_path, revision=revision, local_dir=local_dir)
-    asyncio.create_task(progress_modelscope(uuid))
 
-    return web.Response(text=json.dumps({"Message":"success", "Success":True, "Code":200}), status=200)
+    asyncio.create_task(modelscope_downloader(uuid))
+
+    return web.Response(text=json.dumps({"Message": "success", "Success": True, "Code": 200}), status=200)
+
 
 @PromptServer.instance.routes.get("/customnode/modelscope/status")
 async def get_modelscope_status(request):
-    modelscope_download_tasks_ = [i for i in sorted(modelscope_download_tasks.values(), key=lambda x: x["gmt_created"], reverse=True)]
+    modelscope_download_tasks_ = [i for i in sorted(modelscope_download_tasks.values(), key=lambda x: x["gmt_created"],
+                                                    reverse=True)]
     return web.Response(text=json.dumps(modelscope_download_tasks_), status=200)
 
 
-async def progress_modelscope(uuid):
-    modelscope_download_tasks[uuid]["status"] = 1
-    modelscope_download_tasks[uuid]["message"] = "Running"
-    modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+async def modelscope_downloader(uuid):
+    update_modelscope_download_status(uuid, 1, "running")
 
-    if modelscope_download_tasks[uuid]["model_id"] == 'test/fail':
-        modelscope_download_tasks[uuid]["status"] = -1
-        modelscope_download_tasks[uuid]["message"] = "Error:failed to download model - " + uuid
-        modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    model_id = modelscope_download_tasks[uuid]["model_id"]
+    filename = modelscope_download_tasks[uuid]["filename"]
+    save_path = core.comfy_path + '/models/' + modelscope_download_tasks[uuid]["save_path"]
+    revision = modelscope_download_tasks[uuid]["revision"]
+
+    ms_args = ['modelscope', 'download', '--model', model_id, filename, '--local_dir', save_path]
+
+    if revision != "":
+        ms_args.append('--revision')
+        ms_args.append(revision)
+
+    try:
+        pipe = subprocess.Popen(ms_args,
+                                bufsize=-1,
+                                text=True,
+                                shell=False,
+                                stdout=None,
+                                stderr=subprocess.PIPE)
+    except Exception as e:
+        update_modelscope_download_status(uuid, -1, inspect.stack()[1][3] + ' error: ' + str(e))
         return
-    for i in range(50):
-        modelscope_download_tasks[uuid]["progress"] = (i+1)*2
-        modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        await asyncio.sleep(1)
-    modelscope_download_tasks[uuid]["status"] = 2
-    modelscope_download_tasks[uuid]["message"] = "Success"
-    modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    err_info = ""
+    while 1:
+        err = pipe.stderr.readline()
+        if err:
+            err_info = err
+            match = re.findall(r"[0-9]+%[^%]+$", err)
+            if len(match) > 0:
+                modelscope_download_tasks[uuid]["progress"] = int(match[0].split('%')[0])
+                modelscope_download_tasks[uuid]["gmt_modified"] = datetime.datetime.now().strftime(
+                    "%Y-%m-%d %H:%M:%S")
+        if pipe.returncode is None:
+            code = pipe.poll()
+        else:
+            break
+        await asyncio.sleep(0)
+    if not 0 == pipe.returncode:
+        if err_info.endswith('\n'):
+            err_info = err_info[:-1]
+        err_info = err_info[err_info.find(':') + 1:]
+        update_modelscope_download_status(uuid, -1, err_info)
+        return
+
+    update_modelscope_download_status(uuid, 2, "success")
+
     return
 
 @PromptServer.instance.routes.post("/customnode/fix")
 async def fix_custom_node(request):
     if not is_allowed_security_level('middle'):
-        print(f"ERROR: To use this action, a security_level of `middle or below` is required. Please contact the administrator.")
+        print(
+            f"ERROR: To use this action, a security_level of `middle or below` is required. Please contact the administrator.")
         return web.Response(status=403)
 
     json_data = await request.json()
@@ -938,13 +999,15 @@ async def modelscope_reset_personal_customnodes(request):
     os.system("ln -s /mnt/comfyui-test/custom_nodes_shared/* /mnt/comfyui-test/custom_nodes_users/${USER_NAME}/")
     print(f"Initialization done.")
 
-    data = {"Message":"Successfully cleaned personal custom nodes."}
+    data = {"Message": "Successfully cleaned personal custom nodes."}
     return web.Response(text=json.dumps(data), status=200)
+
 
 @PromptServer.instance.routes.post("/customnode/uninstall")
 async def uninstall_custom_node(request):
     if not is_allowed_security_level('middle'):
-        print(f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
+        print(
+            f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
         return web.Response(status=403)
 
     json_data = await request.json()
@@ -972,7 +1035,8 @@ async def uninstall_custom_node(request):
 @PromptServer.instance.routes.post("/customnode/update")
 async def update_custom_node(request):
     if not is_allowed_security_level('middle'):
-        print(f"ERROR: To use this action, a security_level of `middle or below` is required. Please contact the administrator.")
+        print(
+            f"ERROR: To use this action, a security_level of `middle or below` is required. Please contact the administrator.")
         return web.Response(status=403)
 
     json_data = await request.json()
@@ -1051,7 +1115,8 @@ async def install_model(request):
 
             model_url = json_data['url']
             if not core.get_config()['model_download_by_agent'] and (
-                    model_url.startswith('https://github.com') or model_url.startswith('https://huggingface.co') or model_url.startswith('https://heibox.uni-heidelberg.de')):
+                    model_url.startswith('https://github.com') or model_url.startswith(
+                'https://huggingface.co') or model_url.startswith('https://heibox.uni-heidelberg.de')):
                 model_dir = get_model_dir(json_data)
                 download_url(model_url, model_dir, filename=json_data['filename'])
                 if model_path.endswith('.zip'):
@@ -1232,7 +1297,8 @@ async def get_notice(request):
 @PromptServer.instance.routes.get("/manager/reboot")
 def restart(self):
     if not is_allowed_security_level('middle'):
-        print(f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
+        print(
+            f"ERROR: To use this action, a security_level of `middle or below` is required.  Please contact the administrator.")
         return web.Response(status=403)
 
     try:
@@ -1599,7 +1665,8 @@ async def share_art(request):
 
         # upload workflow json
         async with aiohttp.ClientSession(trust_env=True, connector=aiohttp.TCPConnector(verify_ssl=False)) as session:
-            async with session.put(workflowJsonFilePresignedUrl, data=json.dumps(prompt['workflow']).encode('utf-8')) as resp:
+            async with session.put(workflowJsonFilePresignedUrl,
+                                   data=json.dumps(prompt['workflow']).encode('utf-8')) as resp:
                 assert resp.status == 200
 
         model_filenames = extract_model_file_names(prompt['workflow'])
@@ -1660,15 +1727,18 @@ async def share_art(request):
             try:
                 token = client.login(username=matrix_auth['username'], password=matrix_auth['password'])
                 if not token:
-                    return web.json_response({"error": "Invalid Matrix credentials."}, content_type='application/json', status=400)
+                    return web.json_response({"error": "Invalid Matrix credentials."}, content_type='application/json',
+                                             status=400)
             except:
-                return web.json_response({"error": "Invalid Matrix credentials."}, content_type='application/json', status=400)
+                return web.json_response({"error": "Invalid Matrix credentials."}, content_type='application/json',
+                                         status=400)
 
             matrix = MatrixHttpApi(homeserver, token=token)
             with open(asset_filepath, 'rb') as f:
                 mxc_url = matrix.media_upload(f.read(), content_type, filename=filename)['content_uri']
 
-            workflow_json_mxc_url = matrix.media_upload(prompt['workflow'], 'application/json', filename='workflow.json')['content_uri']
+            workflow_json_mxc_url = \
+            matrix.media_upload(prompt['workflow'], 'application/json', filename='workflow.json')['content_uri']
 
             text_content = ""
             if title:
@@ -1683,7 +1753,8 @@ async def share_art(request):
         except:
             import traceback
             traceback.print_exc()
-            return web.json_response({"error": "An error occurred when sharing your art to Matrix."}, content_type='application/json', status=500)
+            return web.json_response({"error": "An error occurred when sharing your art to Matrix."},
+                                     content_type='application/json', status=500)
 
     return web.json_response({
         "comfyworkflows": {
@@ -1751,10 +1822,8 @@ if not os.path.exists(core.config_path):
     core.get_config()
     core.write_config()
 
-
 cm_global.register_extension('ComfyUI-Manager',
                              {'version': core.version,
-                                 'name': 'ComfyUI Manager',
-                                 'nodes': {'Terminal Log //CM'},
-                                 'description': 'It provides the ability to manage custom nodes in ComfyUI.', })
-
+                              'name': 'ComfyUI Manager',
+                              'nodes': {'Terminal Log //CM'},
+                              'description': 'It provides the ability to manage custom nodes in ComfyUI.', })
