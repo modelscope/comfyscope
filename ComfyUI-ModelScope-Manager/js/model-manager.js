@@ -501,9 +501,12 @@ export class ModelManager {
         }
 
         const value = d.rowItem[d.columnItem.id]
-
-        if (value && isNodeTruncated(target)) {
-          this.showTooltip(target, `${value}`)
+        if (value) {
+          if (isNodeTruncated(target)) {
+            this.showTooltip(target, `${value}`)
+          } else if (isNodeTruncated(d.e.relatedTarget)) {
+            this.showTooltip(d.e.relatedTarget, `${value}`)
+          }
           return
         }
       })
@@ -574,7 +577,7 @@ export class ModelManager {
         id: 'model_id',
         name: 'Model ID',
         minWidth: 100,
-        width: 200,
+        width: 300,
         maxWidth: 500,
         classMap: 'cmm-node-name',
         formatter: function (id, rowItem, columnItem, cellNode) {
@@ -779,7 +782,7 @@ export class ModelManager {
     const $close = this.element.querySelector('.cmm-manager-close')
 
     const list = [
-      '.cmm-manager-header input',
+      '.cmm-manager-header input,button',
       '.cmm-manager-header select',
       '.cmm-manager-footer button'
     ]
