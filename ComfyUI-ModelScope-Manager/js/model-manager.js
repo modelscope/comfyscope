@@ -89,7 +89,11 @@ const pageCss = `
     icons.search.replace('currentColor', '#888')
   )}");
 }
-
+.cmm-manager-help a {
+  font-size: 14px;
+  color: skyblue;
+	text-decoration: none;
+}
 
 .cmm-manager-grid {
 	flex: auto;
@@ -123,7 +127,7 @@ const pageCss = `
 
 .cmm-manager-grid .cmm-node-desc a {
 	color: #5555FF;
-    font-weight: bold;
+  font-weight: bold;
 	text-decoration: none;
 }
 
@@ -346,6 +350,7 @@ const pageHtml = `
 <div class="cmm-manager-header">
 	<input class="cmm-manager-keywords" type="search" placeholder="Search" />
 	<div class="cmm-flex-auto"></div>
+  <div class="cmm-manager-help"><a href="https://modelscope.cn/docs/工作流" target="_blank"><b>Documentation</b></a></div>
 </div>
 <div class="cmm-manager-grid"></div>
 <div class="cmm-manager-message"></div>
