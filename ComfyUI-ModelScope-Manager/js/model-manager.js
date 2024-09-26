@@ -422,10 +422,12 @@ export class ModelManager {
           }
 
           this.installing = true
-          await this.installModel(this.form_data, e.currentTarget)
+          const res = await this.installModel(this.form_data, e.currentTarget)
           this.installing = false
-          this.setFormData()
-          await this.loadData(true)
+          if (res) {
+            this.setFormData()
+            await this.loadData(true)
+          }
         }
       },
       '.cmm-manager-keywords': {
@@ -468,7 +470,7 @@ export class ModelManager {
       const target = d.e.target
       const mode = target.getAttribute('mode')
       if (mode === 'retry') {
-        await this.installModel(
+        const res = await this.installModel(
           {
             model_id: rowItem.model_id,
             revision: rowItem.revision,
@@ -477,7 +479,9 @@ export class ModelManager {
           },
           target
         )
-        await this.loadData(true)
+        if (res) {
+          await this.loadData(true)
+        }
       }
     })
 
@@ -699,7 +703,7 @@ export class ModelManager {
     for (const key in prop2Label) {
       if (!data[key]) {
         this.showError(`${prop2Label[key]} is required.`)
-        return
+        return false
       }
     }
 
@@ -716,6 +720,7 @@ export class ModelManager {
     }
     this.hideLoading()
     btn.classList.remove('cmm-btn-loading')
+    return true
   }
 
   // ===========================================================================================
