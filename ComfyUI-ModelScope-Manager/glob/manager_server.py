@@ -853,12 +853,11 @@ async def install_modelscope_model(request):
     if ('filename' not in json_data) or json_data['filename'].strip() == '':
         return web.Response(text=json.dumps({"Message": "missing filename", "Success": False, "Code": 400}), status=400)
     file_path = json_data['filename']
-    revision = 'master'
 
-    if ('revision' in json_data) or (json_data['revision'].strip() != ""):
-        revision = json_data['revision']
-    else:
-        revision = ""
+    revision = ''
+    if 'revision' in json_data:
+        if json_data['revision'].strip() != "":
+            revision = json_data['revision']
 
     if ('save_path' not in json_data) or json_data['save_path'].strip() == '':
         json_data['save_path'] = ""
@@ -893,6 +892,8 @@ async def modelscope_downloader(uuid):
     model_id = modelscope_download_tasks[uuid]["model_id"]
     filename = modelscope_download_tasks[uuid]["filename"]
     save_path = core.comfy_path + '/models/' + modelscope_download_tasks[uuid]["save_path"]
+    if not save_path.endswith('/'):
+        save_path += ('/' + model_id + '/')
     revision = modelscope_download_tasks[uuid]["revision"]
 
     ms_args = ['modelscope', 'download', '--model', model_id, filename, '--local_dir', save_path]

@@ -3433,6 +3433,17 @@
             "url": "https://huggingface.co/Shakker-Labs/FLUX.1-dev-ControlNet-Union-Pro/resolve/main/diffusion_pytorch_model.safetensors"
         },
         {
+            "base": "FLUX.1",
+            "description": "FLUX.1 [Dev] Union Controlnet. Supports Canny, Tile, Depth, Blur, Pose, Gray, Low Quality\nVersion quantized to fp8_e4m3fn by Kijai",
+            "filename": "flux_shakker_labs_union_pro-fp8_e4m3fn.safetensors",
+            "name": "Shakker-Labs/FLUX.1-dev-ControlNet-Union-Pro (fp8_e4m3fn) by Kijai",
+            "reference": "https://huggingface.co/Kijai/flux-fp8",
+            "save_path": "controlnet/FLUX.1",
+            "size": "3.3GB",
+            "type": "controlnet",
+            "url": "https://huggingface.co/Kijai/flux-fp8/resolve/main/flux_shakker_labs_union_pro-fp8_e4m3fn.safetensors"
+        },
+        {
             "base": "SDXL",
             "description": "All-in-one ControlNet for image generations and editing!",
             "filename": "diffusion_pytorch_model.safetensors",
@@ -4113,6 +4124,28 @@
             "size": "1.48GB",
             "type": "SegGPT",
             "url": "https://huggingface.co/BAAI/SegGPT/resolve/main/seggpt_vit_large.pth"
+        },
+        {
+            "base": "clip",
+            "description": "Greatly improved TEXT + Detail (as CLIP-L for Flux.1)",
+            "filename": "ViT-L-14-TEXT-detail-improved-hiT-GmP-HF.safetensors",
+            "name": "ViT-L-14-TEXT-detail-improved-hiT-GmP-HF.safetensors [Long CLIP L]",
+            "reference": "https://huggingface.co/zer0int",
+            "save_path": "clip/long_clip",
+            "size": "931MB",
+            "type": "clip",
+            "url": "https://huggingface.co/zer0int/CLIP-GmP-ViT-L-14/resolve/main/ViT-L-14-TEXT-detail-improved-hiT-GmP-HF.safetensors"
+        },
+        {
+            "base": "clip",
+            "description": "Greatly improved TEXT + Detail (as CLIP-L for Flux.1)",
+            "filename": "ViT-L-14-TEXT-detail-improved-hiT-GmP-TE-only-HF.safetensors",
+            "name": "ViT-L-14-TEXT-detail-improved-hiT-GmP-HF.safetensors [Long CLIP L]",
+            "reference": "https://huggingface.co/zer0int",
+            "save_path": "clip/long_clip",
+            "size": "323MB",
+            "type": "clip",
+            "url": "https://huggingface.co/zer0int/CLIP-GmP-ViT-L-14/resolve/main/ViT-L-14-TEXT-detail-improved-hiT-GmP-TE-only-HF.safetensors"
         }
     ]
 }
