@@ -1,4 +1,4 @@
-import { $el } from '../../scripts/ui.js'
+import { $el, ComfyDialog } from '../../scripts/ui.js'
 import { manager_instance, rebootAPI, fetchData, md5, icons } from './common.js'
 
 // https://cenfun.github.io/turbogrid/api.html
@@ -366,6 +366,7 @@ export class ModelManager {
 
   constructor(app, manager_dialog) {
     this.app = app
+    this.locale = localStorage.getItem('AGL.Locale') || 'en-US'
     this.manager_dialog = manager_dialog
     this.id = 'cmm-manager'
 
@@ -396,6 +397,31 @@ export class ModelManager {
     this.element.innerHTML = pageHtml
     this.bindEvents()
     this.initGrid()
+  }
+
+  getTranslation(key) {
+    const translationMap = {
+      'en-US': {
+        model_id: 'Model ID',
+        filename: 'Filename',
+        save_path: 'Save Path',
+        status: 'Status',
+        no_results: 'No Results',
+        retry: 'Retry'
+      },
+      'zh-CN': {
+        model_id: '模型 ID',
+        filename: '文件名',
+        save_path: '保存路径',
+        status: '状态',
+        no_results: '暂无结果',
+        retry: '重试'
+      }
+    }
+    if (!translationMap[this.locale]) {
+      return translationMap['en-US'][key]
+    }
+    return translationMap[this.locale][key] || translationMap['en-US'][key]
   }
 
   bindEvents() {
@@ -534,7 +560,7 @@ export class ModelManager {
       scrollbarRound: true,
 
       frozenColumn: 1,
-      rowNotFound: 'No Results',
+      rowNotFound: this.getTranslation('no_results'),
       rowHeight: 40,
       bindWindowResize: true,
       bindContainerResize: true,
@@ -584,7 +610,7 @@ export class ModelManager {
     const columns = [
       {
         id: 'model_id',
-        name: 'Model ID',
+        name: this.getTranslation('model_id'),
         minWidth: 100,
         width: 300,
         maxWidth: 500,
@@ -595,7 +621,7 @@ export class ModelManager {
       },
       {
         id: 'status',
-        name: 'Status',
+        name: this.getTranslation('status'),
         width: 130,
         minWidth: 110,
         width: 200,
@@ -617,7 +643,7 @@ export class ModelManager {
 					<div class="cmm-icon-conflicts" mode="model-error-message">
 						${icons.conflicts}
 					</div>
-					<button mode="retry">Retry</button>
+					<button mode="retry">${this.getTranslation('retry')}</button>
 				</div>`
             case 2:
               return `<div class="cmm-icon-passed">${icons.passed}</div>`
@@ -635,12 +661,12 @@ export class ModelManager {
 
       {
         id: 'filename',
-        name: 'Filename',
+        name: this.getTranslation('filename'),
         width: 300
       },
       {
         id: 'save_path',
-        name: 'Save Path',
+        name: this.getTranslation('save_path'),
         width: 300
       }
     ]
@@ -650,7 +676,6 @@ export class ModelManager {
       rows,
       columns
     })
-
     this.grid.render()
   }
 
