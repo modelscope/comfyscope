@@ -350,7 +350,7 @@ const pageHtml = `
 <div class="cmm-manager-header">
 	<input class="cmm-manager-keywords" type="search" placeholder="Search" />
 	<div class="cmm-flex-auto"></div>
-  <div class="cmm-manager-help"><a href="https://modelscope.cn/docs/工作流" target="_blank"><b>Documentation</b></a></div>
+  <div class="cmm-manager-help"><a href="https://modelscope.cn/docs/在ComfyUI中使用ModelScope的模型" target="_blank"><b>Documentation</b></a></div>
 </div>
 <div class="cmm-manager-grid"></div>
 <div class="cmm-manager-message"></div>
