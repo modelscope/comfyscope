@@ -270,13 +270,13 @@ export class SnapshotManager extends ComfyDialog {
 		close_button.onclick = () => { this.close(); }
 		close_button.style.display = "inline-block";
 
-		var save_button = document.createElement("button");
-		save_button.className = "cm-small-button";
-		save_button.innerHTML = "Save snapshot";
-		save_button.onclick = () => { save_current_snapshot(); }
-		save_button.style.display = "inline-block";
-		save_button.style.horizontalAlign = "right";
-		save_button.style.width = "170px";
+		// var save_button = document.createElement("button");
+		// save_button.className = "cm-small-button";
+		// save_button.innerHTML = "Save snapshot";
+		// save_button.onclick = () => { save_current_snapshot(); }
+		// save_button.style.display = "inline-block";
+		// save_button.style.horizontalAlign = "right";
+		// save_button.style.width = "170px";
 
 		this.message_box = $el('div', {id:'custom-download-message'}, [$el('br'), '']);
 		this.message_box.style.height = '60px';

@@ -1,25 +1,25 @@
-import mimetypes
-import traceback
-
-import folder_paths
-import locale
-import subprocess  # don't remove this
+import asyncio
 import concurrent
-import nodes
+import datetime
 import hashlib
+import inspect
+import locale
+import mimetypes
 import os
-import sys
-import threading
 import re
 import shutil
-import git
-import datetime
-import inspect
-import asyncio
+import subprocess  # don't remove this
+import sys
+import threading
+import traceback
 
-from server import PromptServer
-import manager_core as core
 import cm_global
+import folder_paths
+import git
+import manager_core as core
+from server import PromptServer
+
+import nodes
 
 print(f"### Loading: ComfyUI-Manager ({core.version_str})")
 
@@ -42,8 +42,8 @@ def handle_stream(stream, prefix):
                 print(prefix, msg, end="")
 
 
-from comfy.cli_args import args
 import latent_preview
+from comfy.cli_args import args
 
 is_local_mode = args.listen.startswith('127.') or args.listen.startswith('local.')
 
@@ -235,12 +235,13 @@ setup_environment()
 
 # Expand Server api
 
+import json
+import urllib.request
+import zipfile
+
+import aiohttp
 import server
 from aiohttp import web
-import aiohttp
-import json
-import zipfile
-import urllib.request
 
 
 def get_model_dir(data):
@@ -653,13 +654,13 @@ async def get_current_snapshot_api(request):
         return web.Response(status=400)
 
 
-@PromptServer.instance.routes.get("/snapshot/save")
-async def save_snapshot(request):
-    try:
-        core.save_snapshot_with_postfix('snapshot')
-        return web.Response(status=200)
-    except:
-        return web.Response(status=400)
+# @PromptServer.instance.routes.get("/snapshot/save")
+# async def save_snapshot(request):
+#     try:
+#         core.save_snapshot_with_postfix('snapshot')
+#         return web.Response(status=200)
+#     except:
+#         return web.Response(status=400)
 
 
 def unzip_install(files):

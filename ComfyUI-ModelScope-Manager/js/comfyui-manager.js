@@ -996,16 +996,16 @@ class ManagerMenuDialog extends ComfyDialog {
 			$el("br", {}, []),
 			$el("filedset.cm-experimental", {}, [
 					$el("legend.cm-experimental-legend", {}, ["EXPERIMENTAL"]),
-					$el("button.cm-experimental-button", {
-						type: "button",
-						textContent: "Snapshot Manager",
-						onclick:
-							() => {
-								if(!SnapshotManager.instance)
-								SnapshotManager.instance = new SnapshotManager(app, self);
-								SnapshotManager.instance.show();
-							}
-					}),
+					// $el("button.cm-experimental-button", {
+					// 	type: "button",
+					// 	textContent: "Snapshot Manager",
+					// 	onclick:
+					// 		() => {
+					// 			if(!SnapshotManager.instance)
+					// 			SnapshotManager.instance = new SnapshotManager(app, self);
+					// 			SnapshotManager.instance.show();
+					// 		}
+					// }),
 					$el("button.cm-experimental-button", {
 						type: "button",
 						textContent: "Unload models",
